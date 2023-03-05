@@ -1,4 +1,6 @@
 import numpy as np
+from utils import  Utilities
+
 class Sugeno:
 
     number_of_inputs: int
@@ -7,46 +9,11 @@ class Sugeno:
     outputs: list = []
     inputs_variables: dict = {}
     outputs_variables: dict = {}
+    rules: list = []
 
-    def __init__(self, number_of_inputs: int = 2, number_of_outputs: int = 2):
+    def __init__(self, number_of_inputs: int = 2, number_of_outputs: int = 1):
         self.number_of_inputs = number_of_inputs
         self.number_of_outputs = number_of_outputs
-
-    @staticmethod
-    def check_if_in_domain(domain, fuzzy_set: list) -> bool:
-
-        if type(domain) is not tuple:
-            raise Exception("""The type of the domain should be tuple , the first part "
-                            should be the first value and the second part is the last value of the domain
-                            """)
-        for k in fuzzy_set:
-
-            if type(k) is not tuple:
-                raise Exception("This is not a valid fuzzy set")
-            elif k[0] < domain[0] or k[0] > domain[1]:
-                return False
-
-            else:
-                pass
-        return True
-
-    @staticmethod
-    def check_if_valid_fuzzy_list(fuzzy_set: list) -> bool:
-        dupl: dict = {}
-        for k in fuzzy_set:
-            if k[0] not in dupl:
-                dupl[k[0]] = k[0]
-            else:
-                raise Exception("There are duplicates in the fuzzy set !")
-
-            if type(k) is not tuple:
-                return False
-            elif k[1] > 1 or k[1] < 0:
-                return False
-            else:
-                pass
-
-        return True
 
     def add_input(self, name: str, domain: tuple) -> None:
         if self.number_of_inputs > len(self.inputs):
@@ -66,9 +33,9 @@ class Sugeno:
 
         if input_name not in self.inputs:
             raise Exception("There is not an input like that !")
-        if not Sugeno.check_if_valid_fuzzy_list(prob_list):
+        if not Utilities.check_if_valid_fuzzy_list(prob_list):
             raise Exception("Not a valid fuzzy set")
-        if not Sugeno.check_if_in_domain(self.inputs[input_name], prob_list):
+        if not Utilities.check_if_in_domain(self.inputs[input_name], prob_list):
             raise Exception("Not in the domain of the input")
 
         self.inputs_variables[input_name][variable_name] = prob_list
@@ -80,9 +47,27 @@ class Sugeno:
 
         self.outputs_variables[output_name][formula_name] = formula_list
 
-    def add_rule(self,output_formula, *args,**kwargs) -> None:
+    def add_rule(self, inputs: list, output_formulas: list) -> None:
+        if len(inputs) != self.number_of_inputs :
+            raise Exception("The input list length should be the same with number of input")
 
-        return None
+        elif len(output_formulas) != self.number_of_outputs:
+            raise Exception("The input list length should be the same with number of output")
+
+        else:
+            rule: tuple = ([(i, inputs[count])
+                            for count, i in enumerate(self.inputs) if inputs[count] in self.inputs_variables[i]],
+                           [(o, output_formulas[count])
+                            for count, o in enumerate(self.outputs) if output_formulas[count] in self.outputs_variables[o]])
+
+            if len(rule[0]) != self.number_of_inputs:
+                raise Exception("One of the input variables does not exists !")
+            elif len(rule[1]) != self.number_of_outputs:
+                raise Exception("One of the output variables does not exists !")
+            else:
+                self.rules.append(rule)
+
+
 if __name__ == '__main__':
     bro = Sugeno()
     bro.add_input(name="xd", domain=(0, 10))
@@ -92,7 +77,9 @@ if __name__ == '__main__':
     bro.add_input_variable("xd", "argos", [(0, 1), (1, 1), (10, 0.5), (3, 0.9)])
     bro.add_input_variable("xd", "meseos", [(0, 0.5)])
     bro.add_input_variable("xd", "Grhgoros", [(0, 0.5)])
-    bro.add_output_formulas("output1", "k1form", [2, 3, 0])
 
-    for x in bro.outputs_variables:
-        print(f"{x} : {bro.outputs_variables[x]}")
+    bro.add_input_variable("xd1", "Grhgoros", [(0, 0.5)])
+
+    bro.add_output_formulas("output1", "k1form", [2, 3, 0])
+    bro.add_rule(["argos", "Grhgoros"],["k1form"])
+    print(bro.rules)
