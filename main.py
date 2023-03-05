@@ -1,9 +1,10 @@
+import numpy as np
 class Sugeno:
 
     number_of_inputs: int
     number_of_outputs: int
     inputs: dict = {}
-    outputs: dict = {}
+    outputs: list = []
     inputs_variables: dict = {}
     outputs_variables: dict = {}
 
@@ -18,30 +19,29 @@ class Sugeno:
             raise Exception("""The type of the domain should be tuple , the first part "
                             should be the first value and the second part is the last value of the domain
                             """)
-        for x in fuzzy_set:
+        for k in fuzzy_set:
 
-            if type(x) is not tuple:
+            if type(k) is not tuple:
                 raise Exception("This is not a valid fuzzy set")
-            elif x[0] < domain[0] or x[0] > domain[1]:
+            elif k[0] < domain[0] or k[0] > domain[1]:
                 return False
 
             else:
                 pass
         return True
 
-
     @staticmethod
     def check_if_valid_fuzzy_list(fuzzy_set: list) -> bool:
         dupl: dict = {}
-        for x in fuzzy_set:
-            if x[0] not in dupl:
-                dupl[x[0]] = x[0]
+        for k in fuzzy_set:
+            if k[0] not in dupl:
+                dupl[k[0]] = k[0]
             else:
                 raise Exception("There are duplicates in the fuzzy set !")
 
-            if type(x) is not tuple:
+            if type(k) is not tuple:
                 return False
-            elif x[1] > 1 or x[1] < 0:
+            elif k[1] > 1 or k[1] < 0:
                 return False
             else:
                 pass
@@ -55,12 +55,11 @@ class Sugeno:
         else:
             raise Exception("You added more inputs than the defined ones")
 
-    def add_output(self, name: str, domain: list) -> None:
-        if self.number_of_inputs > len(self.inputs):
-
-            self.outputs[name]: domain
+    def add_output(self, name) -> None:
+        if self.number_of_outputs > len(self.outputs):
+            self.outputs.append(name)
+            self.outputs_variables[name] = {}
         else:
-
             raise Exception("You added more output than the defined ones")
 
     def add_input_variable(self, input_name: str, variable_name: str, prob_list: list) -> None:
@@ -74,13 +73,26 @@ class Sugeno:
 
         self.inputs_variables[input_name][variable_name] = prob_list
 
+    def add_output_formulas(self, output_name: str, formula_name: str, formula_list: list) -> None:
 
+        if len(formula_list) != self.number_of_inputs+1:
+            raise Exception("The formula list length should be the same with number of outputs")
+
+        self.outputs_variables[output_name][formula_name] = formula_list
+
+    def add_rule(self,output_formula, *args,**kwargs) -> None:
+
+        return None
 if __name__ == '__main__':
     bro = Sugeno()
     bro.add_input(name="xd", domain=(0, 10))
     bro.add_input(name="xd1", domain=(0, 15))
+    bro.add_output("output1")
+
     bro.add_input_variable("xd", "argos", [(0, 1), (1, 1), (10, 0.5), (3, 0.9)])
     bro.add_input_variable("xd", "meseos", [(0, 0.5)])
     bro.add_input_variable("xd", "Grhgoros", [(0, 0.5)])
-    for x in bro.inputs_variables:
-        print(f"{x} : {bro.inputs_variables[x]}")
+    bro.add_output_formulas("output1", "k1form", [2, 3, 0])
+
+    for x in bro.outputs_variables:
+        print(f"{x} : {bro.outputs_variables[x]}")
