@@ -11,13 +11,9 @@ class TestSugeno(unittest.TestCase):
         self.assertEqual(self.test.add_input(name="x2", domain=(9, 4)), False)
         self.assertEqual(self.test.add_input(name="x2", domain=(-4, 4)),True)
         self.assertRaises(Exception, self.test.add_input, name="x4",  domain=(1, 4))
-
-    def test_sugeno_output(self):
-        self.assertIsNone(self.test.add_output(name="y"))
-        self.assertRaises(Exception, self.test.add_output, name="y44")
+        print("Test1 : Success")
 
     def test_sugeno_input_variable(self):
-
         prob1 = 0.9
         prob2 = 0
         lista1 = []
@@ -33,17 +29,30 @@ class TestSugeno(unittest.TestCase):
         self.assertIsNone(self.test.add_input_variable("x1", "large", lista2))
         self.assertIsNone(self.test.add_input_variable("x2", "small", lista1))
         self.assertIsNone(self.test.add_input_variable("x2", "large", lista2))
-        self.assertIsNone(self.test.add_input_variable("x2", "large", [(1,1),(2,0.5)]))
-        self.assertRaises(Exception, self.test.add_input_variable, input_name="y44", variable_name="Xamhla", prob_list=lista1)
-        self.assertRaises(Exception, self.test.add_input_variable, input_name="y44", variable_name="Xamhla", prob_list=[(3,0.5),(9)])
-        self.assertRaises(Exception, self.test.add_input_variable, input_name="x1", variable_name="Xamhla", prob_list=[(3,0.5),(9,0.8)])
+        self.assertIsNone(self.test.add_input_variable("x2", "large", [(1, 1), (2, 0.5)]))
+        self.assertRaises(Exception, self.test.add_input_variable, input_name="y44", variable_name="Xamhla",
+                          prob_list=lista1)
+        self.assertRaises(Exception, self.test.add_input_variable, input_name="y44", variable_name="Xamhla",
+                          prob_list=[(3, 0.5), (9)])
+        self.assertRaises(Exception, self.test.add_input_variable, input_name="x1", variable_name="Xamhla",
+                          prob_list=[(3, 0.5), (9, 0.8)])
+        print("Test2 : Success")
+
+    def test_sugeno_output(self):
+        self.assertIsNone(self.test.add_output(name="y"))
+        self.assertRaises(Exception, self.test.add_output, name="y44")
+        print("Test3 : Success")
+
 
     def test_sugeno_output_formula(self):
         self.assertIsNone(self.test.add_output_formulas("y","y1",[-1, 1, 1]))
         self.assertIsNone(self.test.add_output_formulas("y","y2",[0, -1, 2]))
         self.assertIsNone(self.test.add_output_formulas("y","y3",[-1, 0, 3]))
         self.assertIsNone(self.test.add_output_formulas("y","y4",[-1, 1, 2]))
-
+        self.assertRaises(Exception,self.test.add_output_formulas,output_name="y5",formula_name="y1",formula_list=[1,1,1])
+        self.assertRaises(Exception,self.test.add_output_formulas,output_name="y",formula_name="y1",formula_list=[1,1,1,1])
+        self.assertRaises(Exception,self.test.add_output_formulas,output_name="y",formula_name="y1",formula_list=[1,1])
+        print("Test4 : Success")
 
 
 
