@@ -18,17 +18,10 @@ class Sugeno:
         self.number_of_inputs = number_of_inputs
         self.number_of_outputs = number_of_outputs
 
-    def add_input(self, name: str, domain: tuple) -> bool:
-
-        if (domain[0]>domain[1]):
-            return False
-
-        elif self.number_of_inputs > len(self.inputs):
+    def add_input(self, name: str, domain: tuple) -> None:
+        if self.number_of_inputs > len(self.inputs):
             self.inputs[name] = domain
             self.inputs_variables[name] = {}
-            return True
-
-
         else:
             raise Exception("You added more inputs than the defined ones")
 
