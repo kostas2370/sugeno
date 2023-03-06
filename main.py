@@ -18,10 +18,13 @@ class Sugeno:
         self.number_of_inputs = number_of_inputs
         self.number_of_outputs = number_of_outputs
 
-    def add_input(self, name: str, domain: tuple) -> None:
-        if self.number_of_inputs > len(self.inputs):
+    def add_input(self, name: str, domain: tuple) -> bool:
+        if domain[0]>=domain[1]:
+            return False
+        elif self.number_of_inputs > len(self.inputs):
             self.inputs[name] = domain
             self.inputs_variables[name] = {}
+            return True
         else:
             raise Exception("You added more inputs than the defined ones")
 
@@ -58,8 +61,9 @@ class Sugeno:
             raise Exception("The input list length should be the same with number of output")
 
         else:
-            rule: tuple = ([(i, inputs[count]) for count, inp in enumerate(self.inputs) if
+            rule: tuple = ([(inp, inputs[count]) for count, inp in enumerate(self.inputs) if
                             inputs[count] in self.inputs_variables[inp]],
+
                            [(o, output_formulas[count]) for count, o in enumerate(self.outputs) if
                             output_formulas[count] in self.outputs_variables[o]])
 
@@ -73,16 +77,18 @@ class Sugeno:
     def calculate(self, inputs: list) -> float or int:
         function_values: list = []
         membership_values: list = []
+
         for rule in self.rules:
+
             functions = []
             for output in rule[1]:
                 functions.append(Utilities.calculate_function(self.outputs_variables[output[0]][output[1]], inputs))
             function_values.append(functions)
 
             minimum = 0
-            for inputs, x in zip(rule[0], inputs):
+            for input, x in zip(rule[0], inputs):
 
-                a: any = Utilities.find_equation(self.inputs_variables[inputs[0]][inputs[1]])(x)
+                a: any = Utilities.find_equation(self.inputs_variables[input[0]][input[1]])(x)
                 if a > 1:
                     a = 1
                 elif a < 0:
@@ -140,4 +146,4 @@ if __name__ == '__main__':
     bro.add_rule(["small", "large"], ["y3"])
     bro.add_rule(["large", "large"], ["y4"])
 
-    print(bro.calculate([-3, 3.8]))
+    print(bro.calculate([-4, -4]))

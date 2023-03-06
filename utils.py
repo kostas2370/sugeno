@@ -51,8 +51,10 @@ class Utilities:
     @staticmethod
     def calculate_function (mult: list, x: list) -> float:
         calc: int= mult.pop()
-        for p,x in zip(mult,x):
-            calc+= p*x
+
+        for p,z in zip(mult,x):
+
+            calc+= p*z
 
 
 
