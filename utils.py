@@ -1,3 +1,6 @@
+import  numpy as np
+from numpy import poly1d
+
 class Utilities:
 
     @staticmethod
@@ -35,3 +38,22 @@ class Utilities:
                 pass
 
         return True
+
+    @staticmethod
+    def find_equation(fuzzy_set: list) -> np.poly1d or None:
+        x: list=[inp[0] for inp in fuzzy_set]
+        y: list=[inp[1] for inp in fuzzy_set]
+        z: np.ndarray = np.polyfit(x, y, 3)
+        f: np.poly1d = np.poly1d(z)
+
+        return f
+
+    @staticmethod
+    def calculate_function (mult: list, x: list) -> float:
+        calc: int= mult.pop()
+        for p,x in zip(mult,x):
+            calc+= p*x
+
+
+
+        return calc
