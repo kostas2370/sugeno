@@ -38,6 +38,14 @@ class TestSugeno(unittest.TestCase):
         self.assertRaises(Exception, self.test.add_input_variable, input_name="y44", variable_name="Xamhla", prob_list=[(3,0.5),(9)])
         self.assertRaises(Exception, self.test.add_input_variable, input_name="x1", variable_name="Xamhla", prob_list=[(3,0.5),(9,0.8)])
 
+    def test_sugeno_output_formula(self):
+        self.assertIsNone(self.test.add_output_formulas("y","y1",[-1, 1, 1]))
+        self.assertIsNone(self.test.add_output_formulas("y","y2",[0, -1, 2]))
+        self.assertIsNone(self.test.add_output_formulas("y","y3",[-1, 0, 3]))
+        self.assertIsNone(self.test.add_output_formulas("y","y4",[-1, 1, 2]))
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
