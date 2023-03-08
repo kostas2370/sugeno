@@ -31,7 +31,7 @@ class Sugeno:
 
         return True
 
-    def add_input_variable(self, inp: Input, *variables: Variable) -> None:
+    def add_input_variable(self, inp: Input, *variables: Variable) -> bool:
         for variable in variables:
             if inp not in self.inputs:
                 raise Exception("There is not an input like that !")
@@ -40,16 +40,16 @@ class Sugeno:
                 raise Exception("Not in the domain of the input")
 
             inp.variables.append(variable)
-
-    def add_output(self, *outputs: Output or list) -> None:
+        return True
+    def add_output(self, *outputs: Output or list) -> bool:
         for output in outputs:
             if self.number_of_outputs > len(self.outputs):
                 self.outputs.append(output)
 
             else:
                 raise Exception("You added more output than the defined ones")
-
-    def add_rule(self, *rules: Rule) -> None:
+        return True
+    def add_rule(self, *rules: Rule) -> bool:
 
         for rule in rules:
 
@@ -64,7 +64,7 @@ class Sugeno:
                     raise Exception(f"{x.variable_name} is not in this model")
 
             self.rules.append(rule)
-
+        return True
     def calculate(self, *inputs: float or int) -> float or int:
         function_values: list = []
         membership_values: list = []
@@ -91,7 +91,6 @@ class Sugeno:
 
         mb_count: float = sum(membership_values)
         apotelesma: list = []
-        print(function_values)
         for counterx, y in enumerate(self.outputs):
             synolo = 0
 
