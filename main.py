@@ -1,16 +1,16 @@
 import numpy as np
 
 from utils import Utilities
+from data_classes import Input, Variable, Output, OutputFormula, Rule
 
 
 class Sugeno:
     # Properties :
     number_of_inputs: int
     number_of_outputs: int
-    inputs: dict = {}
+    inputs: list = []
     outputs: list = []
-    inputs_variables: dict = {}
-    outputs_variables: dict = {}
+    outputs_variables: list = []
     rules: list = []
 
     # Initiallizing the class
@@ -18,132 +18,127 @@ class Sugeno:
         self.number_of_inputs = number_of_inputs
         self.number_of_outputs = number_of_outputs
 
-    def add_input(self, name: str, domain: tuple) -> bool:
-        if domain[0]>=domain[1]:
-            return False
-        elif self.number_of_inputs > len(self.inputs):
-            self.inputs[name] = domain
-            self.inputs_variables[name] = {}
-            return True
-        else:
-            raise Exception("You added more inputs than the defined ones")
+    def add_input(self, *sugeno_inp: Input) -> bool:
 
-    def add_input_variable(self, input_name: str, variable_name: str, prob_list: list) -> None:
+        for sugeno_input in sugeno_inp:
 
-        if input_name not in self.inputs:
-            raise Exception("There is not an input like that !")
-        if not Utilities.check_if_valid_fuzzy_list(prob_list):
-            raise Exception("Not a valid fuzzy set")
-        if not Utilities.check_if_in_domain(self.inputs[input_name], prob_list):
-            raise Exception("Not in the domain of the input")
-
-        self.inputs_variables[input_name][variable_name] = prob_list
-
-    def add_output(self, name) -> None:
-        if self.number_of_outputs > len(self.outputs):
-            self.outputs.append(name)
-            self.outputs_variables[name] = {}
-        else:
-            raise Exception("You added more output than the defined ones")
-
-    def add_output_formulas(self, output_name: str, formula_name: str, formula_list: list) -> None:
-
-        if len(formula_list) != self.number_of_inputs+1:
-            raise Exception("The formula list length should be the same with number of outputs")
-
-        self.outputs_variables[output_name][formula_name] = formula_list
-
-    def add_rule(self, inputs: list, output_formulas: list) -> None:
-        if len(inputs) != self.number_of_inputs:
-            raise Exception("The input list length should be the same with number of input")
-
-        elif len(output_formulas) != self.number_of_outputs:
-            raise Exception("The input list length should be the same with number of output")
-
-        else:
-            rule: tuple = ([(inp, inputs[count]) for count, inp in enumerate(self.inputs) if
-                            inputs[count] in self.inputs_variables[inp]],
-
-                           [(o, output_formulas[count]) for count, o in enumerate(self.outputs) if
-                            output_formulas[count] in self.outputs_variables[o]])
-
-            if len(rule[0]) != self.number_of_inputs:
-                raise Exception("One of the input variables does not exists !")
-            elif len(rule[1]) != self.number_of_outputs:
-                raise Exception("One of the output variables does not exists !")
+            if sugeno_input.check_if_valid_domain():
+                return False
+            elif self.number_of_inputs > len(self.inputs):
+                self.inputs.append(sugeno_input)
             else:
-                self.rules.append(rule)
+                raise Exception("You added more inputs than the defined ones")
 
-    def calculate(self, inputs: list) -> float or int:
+        return True
+
+    def add_input_variable(self, inp: Input, *variables: Variable) -> None:
+        for variable in variables:
+            if inp not in self.inputs:
+                raise Exception("There is not an input like that !")
+
+            if not Utilities.check_if_in_domain(inp.domain, variable.prob_list):
+                raise Exception("Not in the domain of the input")
+
+            inp.variables.append(variable)
+
+    def add_output(self, *outputs: Output or list) -> None:
+        for output in outputs:
+            if self.number_of_outputs > len(self.outputs):
+                self.outputs.append(output)
+
+            else:
+                raise Exception("You added more output than the defined ones")
+
+    def add_rule(self, *rules: Rule) -> None:
+
+        for rule in rules:
+
+            if len(rule.inputs) != self.number_of_inputs:
+                raise Exception("The input list length should be the same with number of input")
+
+            elif len(rule.output_formulas) != self.number_of_outputs:
+                raise Exception("The input list length should be the same with number of output")
+
+            for x, y in zip(rule.inputs, self.inputs):
+                if x not in y.variables:
+                    raise Exception(f"{x.variable_name} is not in this model")
+
+            self.rules.append(rule)
+
+    def calculate(self, *inputs: float or int) -> float or int:
         function_values: list = []
         membership_values: list = []
 
         for rule in self.rules:
 
-            functions = []
-            for output in rule[1]:
-                functions.append(Utilities.calculate_function(self.outputs_variables[output[0]][output[1]], inputs))
+            functions: list = []
+            for out in rule.output_formulas:
+                functions.append(Utilities.calculate_function(out.formula_list, inputs))
             function_values.append(functions)
 
-            minimum = 0
-            for input, x in zip(rule[0], inputs):
+            minimum = 1
+            for inp, x in zip(rule.inputs, inputs):
 
-                a: any = Utilities.find_equation(self.inputs_variables[input[0]][input[1]])(x)
-                if a > 1:
-                    a = 1
-                elif a < 0:
-                    a = 0
+                a: any = Utilities.find_equation(inp.prob_list)(x)
+                a = 1 if a > 1 else 0 if a < 0 else a
 
-                if minimum == 0:
-                    minimum = a
-                elif minimum >= a:
+                if minimum >= a:
                     minimum = a
                 else:
                     pass
 
             membership_values.append(minimum)
-        mb_count: int = sum(membership_values)
+
+        mb_count: float = sum(membership_values)
         apotelesma: list = []
+        print(function_values)
         for counterx, y in enumerate(self.outputs):
             synolo = 0
 
             for counter, mb in enumerate(membership_values):
                 synolo += function_values[counter][counterx]*mb
-            apotelesma.append((y, synolo/mb_count))
+
+            apotelesma.append((y.name, synolo/mb_count))
 
         return apotelesma
 
 
 if __name__ == '__main__':
     bro = Sugeno(number_of_inputs=2, number_of_outputs=1)
-    bro.add_input(name="x1", domain=(-4, 4))
-    bro.add_input(name="x2", domain=(-4, 4))
-    bro.add_output("y")
-
-    bro.add_output_formulas("y", "y1", [-1, 1, 1])
-    bro.add_output_formulas("y", "y2", [0, -1, 2])
-    bro.add_output_formulas("y", "y3", [-1, 0, 3])
-    bro.add_output_formulas("y", "y4", [-1, 1, 2])
+    input1 = Input("x1", (-4, 4))
+    input2 = Input("x2", (-4, 4))
+    bro.add_input(input1, input2)
+    bro.add_output(Output("y1"))
 
     prob1 = 0.9
     prob2 = 0
     lista1 = []
     lista2 = []
+
     for i in np.arange(-4, 4, 0.01):
         lista1.append((i, prob1))
         prob1 -= 0.00112519
-        lista2.append((i, prob2))
         prob2 += 0.00112519
+        lista2.append((i, prob2))
 
-    bro.add_input_variable("x1", "small", lista1)
-    bro.add_input_variable("x1", "large", lista2)
+    mikro = Variable("xamhlh", lista1)
+    megalo = Variable("megalh", lista2)
 
-    bro.add_input_variable("x2", "small", lista1)
-    bro.add_input_variable("x2", "large", lista2)
+    bro.add_input_variable(input1, mikro, megalo)
+    bro.add_input_variable(input2, mikro, megalo)
 
-    bro.add_rule(["small", "small"], ["y1"])
-    bro.add_rule(["large", "small"], ["y2"])
-    bro.add_rule(["small", "large"], ["y3"])
-    bro.add_rule(["large", "large"], ["y4"])
+    y1 = OutputFormula("y1", [-1, 1, 1])
+    y2 = OutputFormula("y2", [0, -1, 2])
+    y3 = OutputFormula("y3", [-1, 0, 3])
+    y4 = OutputFormula("y4", [-1, 1, 2])
 
-    print(bro.calculate([-4, -4]))
+    rule1 = Rule([mikro, mikro], [y1])
+    rule2 = Rule([megalo, mikro], [y2])
+    rule3 = Rule([mikro, megalo], [y3])
+    rule4 = Rule([megalo, megalo], [y4])
+
+    bro.add_rule(rule1, rule2, rule3, rule4)
+
+    print(bro.calculate(-4, -4))
+
+    exit()

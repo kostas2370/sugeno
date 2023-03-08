@@ -43,7 +43,6 @@ class TestSugeno(unittest.TestCase):
         self.assertRaises(Exception, self.test.add_output, name="y44")
         print("Test3 : Success")
 
-
     def test_sugeno_output_formula(self):
         self.assertIsNone(self.test.add_output_formulas("y","y1",[-1, 1, 1]))
         self.assertIsNone(self.test.add_output_formulas("y","y2",[0, -1, 2]))
@@ -53,7 +52,6 @@ class TestSugeno(unittest.TestCase):
         self.assertRaises(Exception,self.test.add_output_formulas,output_name="y",formula_name="y1",formula_list=[1,1,1,1])
         self.assertRaises(Exception,self.test.add_output_formulas,output_name="y",formula_name="y1",formula_list=[1,1])
         print("Test4 : Success")
-
 
 
 if __name__ == '__main__':

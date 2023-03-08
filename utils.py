@@ -1,5 +1,5 @@
-import  numpy as np
-from numpy import poly1d
+import numpy as np
+
 
 class Utilities:
 
@@ -41,21 +41,18 @@ class Utilities:
 
     @staticmethod
     def find_equation(fuzzy_set: list) -> np.poly1d or None:
-        x: list=[inp[0] for inp in fuzzy_set]
-        y: list=[inp[1] for inp in fuzzy_set]
-        z: np.ndarray = np.polyfit(x, y, 3)
+        x: list = [inp[0] for inp in fuzzy_set]
+        y: list = [inp[1] for inp in fuzzy_set]
+        z: any = np.polyfit(x, y, 3)
         f: np.poly1d = np.poly1d(z)
 
         return f
 
     @staticmethod
-    def calculate_function (mult: list, x: list) -> float:
-        calc: int= mult.pop()
+    def calculate_function(mult: list, x: tuple) -> float:
+        calc: int = mult[-1]
+        for p, z in zip(mult[:-1], x):
 
-        for p,z in zip(mult,x):
-
-            calc+= p*z
-
-
+            calc += p*z
 
         return calc
