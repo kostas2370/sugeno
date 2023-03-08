@@ -49,6 +49,7 @@ class Sugeno:
             else:
                 raise Exception("You added more output than the defined ones")
         return True
+
     def add_rule(self, *rules: Rule) -> bool:
 
         for rule in rules:
