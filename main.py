@@ -41,6 +41,7 @@ class Sugeno:
 
             inp.variables.append(variable)
         return True
+
     def add_output(self, *outputs: Output or list) -> bool:
         for output in outputs:
             if self.number_of_outputs > len(self.outputs):
@@ -66,6 +67,7 @@ class Sugeno:
 
             self.rules.append(rule)
         return True
+
     def calculate(self, *inputs: float or int) -> float or int:
         function_values: list = []
         membership_values: list = []
