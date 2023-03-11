@@ -56,3 +56,25 @@ class Utilities:
             calc += p*z
 
         return calc
+
+    @staticmethod
+    def find_quadratic(p1: tuple, p2: tuple, p3: tuple):
+
+        x1, y1 = p1
+        x2, y2 = p2
+        x3, y3 = p3
+        a = ((y2-y1)*(x3-x1)-(y3-y1)*(x2-x1))/((x2-x1)*(x3 ** 2-x1 ** 2)-(x3-x1)*(x2 ** 2-x1 ** 2))
+        b = ((y2-y1)-a*(x2 ** 2-x1 ** 2))/(x2-x1)
+        c = y1-a*x1 ** 2-b*x1
+        return np.poly1d([a, b, c])
+
+    @staticmethod
+    def find_line(p1: tuple, p2: tuple):
+        x1, y1 = p1
+        x2, y2 = p2
+
+        slope = (y2-y1)/(x2-x1)
+        y_intercept = y1-slope*x1
+
+        return np.poly1d([slope, y_intercept])
+
