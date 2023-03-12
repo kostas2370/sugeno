@@ -20,10 +20,9 @@ if __name__ == '__main__':
         prob2 += 0.00112519
 
         lista2.append((i, prob2))
-
-    mikro = Variable("fuzzy_set", "xamhlh", lista1)
-    megalo = Variable("fuzzy_set", "megalh", lista2)
-
+    #triangle
+    mikro = Variable("triangle", "xamhlh", [(-4, 0), (-2, 1), (0, 0)])
+    megalo = Variable("line", "megalh", [(-0.5, 0), (2, 1)])
     bro.add_input_variable(input1, mikro, megalo)
     bro.add_input_variable(input2, mikro, megalo)
     y1 = OutputFormula("y1", [-1, 1, 1])
@@ -38,7 +37,6 @@ if __name__ == '__main__':
 
     bro.add_rule(rule1, rule2, rule3, rule4)
 
-    print(bro.calculate(-4, -4))
-
-
+    print(bro.calculate(-0.5, 3.9))
+    bro.plot()
     exit()

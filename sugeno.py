@@ -79,8 +79,11 @@ class Sugeno:
 
             minimum = 1
             for inp, x in zip(rule.inputs, inputs):
+                if type(inp.prob_formula) is list:
+                    a: any = inp.prob_formula[1](x) if x < inp.prob_formula[0] else inp.prob_formula[2](x)
+                else:
 
-                a: any = inp.prob_formula(x)
+                    a: any = inp.prob_formula(x)
                 a = 1 if a > 1 else 0 if a < 0 else a
 
                 if minimum >= a:
@@ -91,6 +94,7 @@ class Sugeno:
             membership_values.append(minimum)
 
         mb_count: float = sum(membership_values)
+        print(membership_values)
         apotelesma: list = []
         for counterx, y in enumerate(self.outputs):
             synolo = 0
